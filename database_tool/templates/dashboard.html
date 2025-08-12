@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Database Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="fas fa-database"></i> Your Connections</h2>
+            <a href="{% url 'add_connection' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Connection
+            </a>
+        </div>
+
+        {% if connections %}
+            <div class="row">
+                {% for connection in connections %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-server"></i> {{ connection.name }}
+                                </h5>
+                                <p class="card-text">
+                                    <span class="badge bg-secondary">{{ connection.get_db_type_display }}</span><br>
+                                    <small class="text-muted">Created: {{ connection.created_at|date:"M d, Y" }}</small>
+                                </p>
+                                <a href="{% url 'connection_detail' connection.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{% url 'query_table' connection.id %}" class="btn btn-outline-success">
+                                    <i class="fas fa-search"></i> Query
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                <h4>No Database Connections</h4>
+                <p class="text-muted">Add your first database connection to get started.</p>
+                <a href="{% url 'add_connection' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Your First Connection
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <h4><i class="fas fa-history"></i> Recent Queries</h4>
+        {% if recent_queries %}
+            <div class="list-group">
+                {% for query in recent_queries %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ query.connection.name }}</h6>
+                            <small class="text-muted">{{ query.executed_at|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ query.query|truncatewords:10 }}</p>
+                        {% if query.success %}
+                            <small class="text-success"><i class="fas fa-check"></i> Success</small>
+                        {% else %}
+                            <small class="text-danger"><i class="fas fa-times"></i> Failed</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">No queries executed yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
